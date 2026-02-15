@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShadowSMP – Server</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* Spielerliste scrollbar & hover */
+      #playerList {
+        max-height: 200px;
+        overflow-y: auto;
+        padding-left: 15px;
+        margin-top: 10px;
+      }
+
+      #playerList li {
+        padding: 5px;
+        transition: 0.3s;
+        list-style: disc inside;
+      }
+
+      #playerList li:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="server.html">Server</a>
+      <a href="features.html">Features</a>
+      <a href="community.html">Community</a>
+      <a href="rules.html">Regeln</a>
+    </nav>
+
+    <header>
+      <h1>ShadowSMP Server Informationen</h1>
+      <p>Live Spieler direkt auf einen Blick</p>
+    </header>
+
+    <section>
+      <h2>Server Status 🎮</h2>
+      <div class="grid">
+        <!-- Live Spieler -->
+        <div class="card">
+          <h3>Aktuelle Spieler</h3>
+          <p id="playerCount">Lade Spielerzahl...</p>
+          <ul id="playerList"></ul>
+        </div>
+
+        <!-- Server Details -->
+        <div class="card">
+          <h3>Server Details</h3>
+          <ul>
+            <li><strong>IP:</strong> Shadowoak.ddns.net:25568</li>
+            <li><strong>Version:</strong> 1.20</li>
+            <li><strong>Modus:</strong> Survival / Economy / Events</li>
+            <li><strong>Max Spieler:</strong> 100</li>
+            <li><strong>Status:</strong> Online</li>
+          </ul>
+        </div>
+
+        <!-- Discord Card -->
+        <div class="card">
+          <h3>Discord Community</h3>
+          <p>
+            Tritt unserem Discord bei, chatte mit Spielern und bleibe auf dem
+            Laufenden.
+          </p>
+          <p>
+            <a href="https://discord.gg/g53JW4Nw" target="_blank"
+              >Jetzt Discord Betreten</a
+            >
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © 2026 ShadowSMP |
+      <a href="https://discord.gg/g53JW4Nw" target="_blank">Discord</a>
+    </footer>
+
+    <script>
+      const serverIP = "Shadowoak.ddns.net";
+      const serverPort = 25568;
+
+      async function updatePlayers() {
+        try {
+          const res = await fetch(
+            `https://api.mcsrvstat.us/2/${serverIP}:${serverPort}`,
+          );
+          const data = await res.json();
+
+          const onlineCount = data.players?.online || 0;
+          const playerArray = Array.isArray(data.players?.list)
+            ? data.players.list
+            : [];
+
+          document.getElementById("playerCount").innerText =
+            `${onlineCount} Spieler online`;
+          const playerListEl = document.getElementById("playerList");
+
+          if (playerArray.length > 0) {
+            playerListEl.innerHTML = playerArray
+              .map((p) => `<li>${p}</li>`)
+              .join("");
+          } else {
+            playerListEl.innerHTML = "<li>Keine Spieler online</li>";
+          }
+        } catch (err) {
+          document.getElementById("playerCount").innerText =
+            "Serverstatus nicht verfügbar";
+          document.getElementById("playerList").innerHTML =
+            "<li>Keine Daten</li>";
+          console.error(err);
+        }
+      }
+
+      // Direkt beim Laden + alle 30 Sekunden aktualisieren
+      updatePlayers();
+      setInterval(updatePlayers, 30000);
+    </script>
+  </body>
+</html>
